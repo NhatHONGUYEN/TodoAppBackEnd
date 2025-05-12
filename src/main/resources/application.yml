@@ -1,0 +1,28 @@
+server:
+  port: 8081 # ton backend tourne sur 8081, Keycloak reste sur 8080
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Remplace "ToDoApp" par le nom exact de ton realm Keycloak
+          issuer-uri: http://localhost:8080/realms/ToDoApp
+
+# (Optionnel, si tu n'utilises plus de JWT «maison» tu peux supprimer cette section)
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}
