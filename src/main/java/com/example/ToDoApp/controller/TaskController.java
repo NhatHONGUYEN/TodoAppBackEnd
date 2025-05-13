@@ -2,6 +2,7 @@ package com.example.ToDoApp.controller;
 
 import com.example.ToDoApp.entity.Task;
 import com.example.ToDoApp.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class TaskController {
 
     /**
      * GET /api/tasks?status={all|pending|done}
-     * Liste les tâches de l’utilisateur courant, optionnellement filtrées par statut.
+     * Liste les tâches de l'utilisateur courant, optionnellement filtrées par statut.
      */
     @GetMapping
     public ResponseEntity<List<Task>> list(
@@ -39,11 +40,11 @@ public class TaskController {
 
     /**
      * POST /api/tasks
-     * Crée une nouvelle tâche pour l’utilisateur courant.
+     * Crée une nouvelle tâche pour l'utilisateur courant.
      */
     @PostMapping
     public ResponseEntity<Task> create(
-            @RequestBody Task task,
+            @Valid @RequestBody Task task,
             Principal principal
     ) {
         task.setUserId(principal.getName());
@@ -53,12 +54,12 @@ public class TaskController {
 
     /**
      * PUT /api/tasks/{id}
-     * Met à jour tous les champs d’une tâche (titre, description, dueDate, completed).
+     * Met à jour tous les champs d'une tâche (titre, description, dueDate, completed).
      */
     @PutMapping("/{id}")
     public ResponseEntity<Task> update(
             @PathVariable Long id,
-            @RequestBody Task task,
+            @Valid @RequestBody Task task,
             Principal principal
     ) {
         Task updated = taskService.update(id, principal.getName(), task);
@@ -80,7 +81,7 @@ public class TaskController {
 
     /**
      * DELETE /api/tasks/{id}
-     * Supprime une tâche si elle appartient à l’utilisateur courant.
+     * Supprime une tâche si elle appartient à l'utilisateur courant.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(

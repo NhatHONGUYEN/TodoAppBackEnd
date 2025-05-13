@@ -6,6 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.FutureOrPresent;
+
 import java.time.LocalDate;
 
 @Entity
@@ -15,17 +20,23 @@ public class Task {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @NotBlank(message = "Le titre est obligatoire")
+  @Size(min = 1, max = 100, message = "Le titre doit faire entre 1 et 100 caractères")
   @Column(nullable = false)
   private String title;
 
+  @Size(max = 1024, message = "La description ne peut pas dépasser 1024 caractères")
   @Column(length = 1024)
   private String description;
 
+  @FutureOrPresent(message = "La date d'échéance doit être aujourd'hui ou dans le futur")
   private LocalDate dueDate;
 
+  @NotNull(message = "Le statut de complétion est obligatoire")
   @Column(nullable = false)
   private Boolean completed = false;
 
+  @NotBlank(message = "L'ID utilisateur est obligatoire")
   @Column(nullable = false)
   private String userId;
 

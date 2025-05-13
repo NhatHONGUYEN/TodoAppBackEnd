@@ -1,6 +1,8 @@
 package com.example.ToDoApp.service;
 
 import com.example.ToDoApp.entity.Task;
+import com.example.ToDoApp.exception.AccessDeniedException;
+import com.example.ToDoApp.exception.TaskNotFoundException;
 import com.example.ToDoApp.repository.TaskRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -29,10 +31,10 @@ public class TaskService {
     }
 
     /**
-     * Liste les tâches d’un utilisateur.
+     * Liste les tâches d'un utilisateur.
      *
      * @param userId    ID du user (sub du token)
-     * @param completed filtre : true/false ou null pour “toutes”
+     * @param completed filtre : true/false ou null pour "toutes"
      * @param sort      critère de tri (ex : Sort.by("dueDate"))
      * @return la liste des tâches correspondant aux critères
      */
@@ -45,17 +47,22 @@ public class TaskService {
     }
 
     /**
-     * Met à jour une tâche existante si elle appartient à l’utilisateur.
+     * Met à jour une tâche existante si elle appartient à l'utilisateur.
      *
      * @param id      ID de la tâche à modifier
      * @param userId  ID du user (sub du token)
      * @param data    objet Task contenant les nouveaux champs
      * @return la tâche mise à jour
+     * @throws TaskNotFoundException si la tâche n'est pas trouvée
+     * @throws AccessDeniedException si l'utilisateur n'est pas propriétaire de la tâche
      */
     public Task update(Long id, String userId, Task data) {
         Task existingTask = repo.findById(id)
-            .filter(t -> t.getUserId().equals(userId))
-            .orElseThrow(() -> new IllegalArgumentException("Task not found or access denied"));
+            .orElseThrow(() -> new TaskNotFoundException(id));
+            
+        if (!existingTask.getUserId().equals(userId)) {
+            throw new AccessDeniedException();
+        }
 
         existingTask.setTitle(data.getTitle());
         existingTask.setDescription(data.getDescription());
@@ -71,24 +78,37 @@ public class TaskService {
      * @param id     ID de la tâche
      * @param userId ID du user (sub du token)
      * @return la tâche mise à jour
+     * @throws TaskNotFoundException si la tâche n'est pas trouvée
+     * @throws AccessDeniedException si l'utilisateur n'est pas propriétaire de la tâche
      */
     public Task markDone(Long id, String userId) {
         Task updateTask = repo.findById(id)
-                     .filter(task -> task.getUserId().equals(userId))
-                     .orElseThrow(() -> new IllegalArgumentException("Task not found or access denied"));
+                     .orElseThrow(() -> new TaskNotFoundException(id));
+                     
+        if (!updateTask.getUserId().equals(userId)) {
+            throw new AccessDeniedException();
+        }
+        
         updateTask.setCompleted(true);
         return repo.save(updateTask);
     }
 
     /**
-     * Supprime une tâche si elle appartient bien à l’utilisateur.
+     * Supprime une tâche si elle appartient bien à l'utilisateur.
      *
      * @param id     ID de la tâche
      * @param userId ID du user (sub du token)
+     * @throws TaskNotFoundException si la tâche n'est pas trouvée
+     * @throws AccessDeniedException si l'utilisateur n'est pas propriétaire de la tâche
      */
     public void delete(Long id, String userId) {
-        repo.findById(id)
-            .filter(task -> task.getUserId().equals(userId))
-            .ifPresent(repo::delete);
+        Task task = repo.findById(id)
+            .orElseThrow(() -> new TaskNotFoundException(id));
+            
+        if (!task.getUserId().equals(userId)) {
+            throw new AccessDeniedException();
+        }
+        
+        repo.delete(task);
     }
 }
