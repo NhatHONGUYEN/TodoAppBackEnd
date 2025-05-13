@@ -1,7 +1,10 @@
 package com.example.ToDoApp.controller;
 
+import com.example.ToDoApp.dto.CreateTaskRequest;
+import com.example.ToDoApp.dto.UpdateTaskRequest;
 import com.example.ToDoApp.entity.Task;
 import com.example.ToDoApp.service.TaskService;
+import com.example.ToDoApp.exception.TaskNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -39,15 +42,45 @@ public class TaskController {
     }
 
     /**
+     * GET /api/tasks/{id}
+     * Récupère une tâche spécifique par son ID.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> getById(
+            @PathVariable Long id,
+            Principal principal
+    ) {
+        // Récupérer toutes les tâches de l'utilisateur
+        List<Task> tasks = taskService.list(principal.getName(), null, Sort.by("id"));
+        
+        // Chercher la tâche avec l'ID spécifié
+        Task task = tasks.stream()
+                .filter(t -> t.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new TaskNotFoundException(id));
+        
+        return ResponseEntity.ok(task);
+    }
+
+    /**
      * POST /api/tasks
      * Crée une nouvelle tâche pour l'utilisateur courant.
      */
     @PostMapping
     public ResponseEntity<Task> create(
-            @Valid @RequestBody Task task,
+            @Valid @RequestBody CreateTaskRequest request,
             Principal principal
     ) {
+        // Conversion du DTO en entité Task
+        Task task = new Task();
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setDueDate(request.getDueDate());
+        task.setCompleted(request.getCompleted());
+        
+        // Affectation de l'utilisateur à partir du Principal
         task.setUserId(principal.getName());
+        
         Task saved = taskService.create(task);
         return ResponseEntity.ok(saved);
     }
@@ -59,10 +92,24 @@ public class TaskController {
     @PutMapping("/{id}")
     public ResponseEntity<Task> update(
             @PathVariable Long id,
-            @Valid @RequestBody Task task,
+            @Valid @RequestBody UpdateTaskRequest request,
             Principal principal
     ) {
-        Task updated = taskService.update(id, principal.getName(), task);
+        // Récupérer la tâche existante pour conserver l'userId
+        List<Task> tasks = taskService.list(principal.getName(), null, Sort.by("id"));
+        Task existingTask = tasks.stream()
+                .filter(t -> t.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new TaskNotFoundException(id));
+        
+        // Mettre à jour les champs avec les données du request
+        existingTask.setTitle(request.getTitle());
+        existingTask.setDescription(request.getDescription());
+        existingTask.setDueDate(request.getDueDate());
+        existingTask.setCompleted(request.getCompleted());
+        // L'userId reste inchangé
+        
+        Task updated = taskService.update(id, principal.getName(), existingTask);
         return ResponseEntity.ok(updated);
     }
 
