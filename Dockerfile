@@ -14,13 +14,15 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
+# Ajout d'un utilisateur non-root pour des raisons de sécurité
+RUN groupadd -r todoapp && useradd -r -g todoapp todoapp
+USER todoapp
 
 # Copier le JAR compilé depuis l'étape précédente
 COPY --from=builder /workspace/target/ToDoApp-0.0.1-SNAPSHOT.jar app.jar
 
 # Configuration pour utiliser le profil de production
 ENV SPRING_PROFILES_ACTIVE=prod
-
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
