@@ -18,7 +18,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://todoappnhat.netlify.app/realms/ToDoApp
+          issuer-uri: https://keycloak-26-2-4.onrender.com/realms/ToDoApp
 
 logging:
   level:

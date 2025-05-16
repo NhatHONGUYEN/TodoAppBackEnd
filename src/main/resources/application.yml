@@ -19,7 +19,7 @@ spring:
       resourceserver:
         jwt:
           # Remplace "ToDoApp" par le nom exact de ton realm Keycloak
-          issuer-uri: http://localhost:8080/realms/ToDoApp
+          issuer-uri: http://localhost:8082/realms/ToDoApp
 
 # (Optionnel, si tu n'utilises plus de JWT «maison» tu peux supprimer cette section)
 app:
