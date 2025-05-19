@@ -18,9 +18,9 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://keycloak-26-2-4.onrender.com/realms/ToDoApp
+          issuer-uri: http://13.51.121.9:8081/realms/ToDoApp
 
 logging:
   level:
     org.springframework: INFO
-    com.example.MiniCrm: INFO
+    com.example.ToDoApp: INFO
