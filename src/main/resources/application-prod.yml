@@ -1,26 +1,23 @@
-server:
-  port: ${SPRING_APPLICATION_PORT:8080}
-
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://todo-db.cpgem82oyryx.eu-north-1.rds.amazonaws.com:5432/todo-db # ← ici la base était fausse
+    username: postgres
+    password: Postgres2025!
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
+          issuer-uri: http://13.60.230.231:8081/realms/ToDoApp
 
-logging:
-  level:
-    org.springframework: INFO
-    com.example.ToDoApp: INFO
+  profiles:
+    active: prod
