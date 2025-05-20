@@ -18,7 +18,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://13.51.121.9:8081/realms/ToDoApp
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
 
 logging:
   level:
