@@ -11,14 +11,26 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://todoapp.cpgem82oyryx.eu-north-1.rds.amazonaws.com:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=hVVHkoWAGeLItkbXQoY
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://13.60.180.240:8080/realms/ToDoApp
 
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    ports:
-      - "8081:8080"
+    image: quay.io/keycloak/keycloak:26.2.4
+    command: start
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_DB=dev-file
-      - KC_HEALTH_ENABLED=true
-    command: start-dev
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://todoapp.cpgem82oyryx.eu-north-1.rds.amazonaws.com:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: hVVHkoWAGeLItkbXQoY
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    restart: always
+
+networks:
+  keycloak-network:
+volumes:
+  postgres_data:
