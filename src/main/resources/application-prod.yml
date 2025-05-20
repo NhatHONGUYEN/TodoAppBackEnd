@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://todo-db.cpgem82oyryx.eu-north-1.rds.amazonaws.com:5432/todo-db # ← ici la base était fausse
+    url: jdbc:postgresql://todo-db.cpgem82oyryx.eu-north-1.rds.amazonaws.com:5432/postgres
     username: postgres
     password: Postgres2025!
     driver-class-name: org.postgresql.Driver
@@ -18,6 +18,5 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://13.60.230.231:8081/realms/ToDoApp
-
-  profiles:
-    active: prod
+# Pas besoin de redéclarer les profiles ici
+# car tu les passes déjà dans le --spring.profiles.active
