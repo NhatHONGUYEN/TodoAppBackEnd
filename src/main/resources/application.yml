@@ -15,6 +15,13 @@ spring:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}
           jwk-set-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}/protocol/openid-connect/certs
+  web:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      allow-credentials: true
+      max-age: 3600
 
 # Configuration de sécurité additionnelle
 auth:

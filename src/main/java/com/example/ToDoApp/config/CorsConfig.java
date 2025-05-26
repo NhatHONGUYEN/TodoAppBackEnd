@@ -16,11 +16,8 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Autoriser ces origines (votre frontend)
-        configuration.setAllowedOrigins(List.of(
-            "https://todoappnhat.netlify.app",
-            "http://localhost:4200"  // Pour le développement local
-        ));
+        // Autoriser TOUTES les origines (approche plus permissive)
+        configuration.setAllowedOriginPatterns(List.of("*"));
         
         // Autoriser ces méthodes HTTP
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
