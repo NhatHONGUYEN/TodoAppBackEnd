@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
@@ -29,22 +30,28 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
         return new JwtAuthenticationToken(jwt, authorities, username);
     }
     
+    @SuppressWarnings("unchecked")
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-        // Si le token contient des rôles dans le claim "realm_access.roles"
-        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-        if (realmAccess == null || realmAccess.isEmpty()) {
-            return Collections.emptyList();
+        // 1) Realm roles
+        Map<String,Object> realmAccess = jwt.getClaim("realm_access");
+        Collection<String> realmRoles = realmAccess != null
+            ? (Collection<String>) realmAccess.get("roles")
+            : Collections.emptyList();
+
+        // 2) Client roles
+        Map<String,Object> resourceAccess = jwt.getClaim("resource_access");
+        Collection<String> clientRoles = Collections.emptyList();
+        if (resourceAccess != null) {
+            Map<String,Object> client = 
+                (Map<String,Object>) resourceAccess.get("todo-backend-client");
+            if (client != null) {
+                clientRoles = (Collection<String>) client.get("roles");
+            }
         }
-        
-        @SuppressWarnings("unchecked")
-        Collection<String> roles = (Collection<String>) realmAccess.get("roles");
-        if (roles == null || roles.isEmpty()) {
-            return Collections.emptyList();
-        }
-        
-        // Convertir les rôles en GrantedAuthority
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                .collect(Collectors.toList());
+
+        // Fusionner et prefixer
+        return Stream.concat(realmRoles.stream(), clientRoles.stream())
+            .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
+            .collect(Collectors.toList());
     }
 } 
