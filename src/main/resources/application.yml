@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: "jdbc:${DATABASE_URL}"
+    url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -14,3 +14,6 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: "${KEYCLOAK_ISSUER_URI:}"
+
+server:
+  port: ${PORT:8080}
