@@ -1,6 +1,6 @@
 spring:
   datasource:
-      url: jdbc:${DATABASE_URL}
+    url: jdbc:${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -15,5 +15,5 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # Valeur par défaut vide si la variable n'existe pas
+          # valeur par défaut vide si non définie
           issuer-uri: ${KEYCLOAK_ISSUER_URI:}
