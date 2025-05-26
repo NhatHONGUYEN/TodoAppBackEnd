@@ -1,8 +1,7 @@
 spring:
   datasource:
-    url: jdbc:${DATABASE_URL}
+    url: "jdbc:${DATABASE_URL}"
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -10,10 +9,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
   security:
     oauth2:
       resourceserver:
         jwt:
-          # valeur par défaut vide si non définie
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:}
+          issuer-uri: "${KEYCLOAK_ISSUER_URI:}"
