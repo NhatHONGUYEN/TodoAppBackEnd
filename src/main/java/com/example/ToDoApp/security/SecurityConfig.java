@@ -11,10 +11,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.disable()) // tu peux aussi laisser `withDefaults()` si tu veux autoriser CORS
+            .cors(cors -> cors.configure(http)) // Active CORS avec la configuration par défaut
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // pour l’instant tout est ouvert
+                .anyRequest().permitAll() // pour l'instant tout est ouvert
             );
             // Supprime ou commente cette ligne :
             //.oauth2ResourceServer(oauth2 -> oauth2.jwt()); ❌
