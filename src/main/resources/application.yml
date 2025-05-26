@@ -2,6 +2,7 @@ spring:
   datasource:
     url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -14,6 +15,5 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI}
-# Si tu utilises d'autres variables, déclare-les aussi :
-# KEYCLOAK_ISSUER_URI, etc.
+          # Valeur par défaut vide si la variable n'existe pas
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:}
