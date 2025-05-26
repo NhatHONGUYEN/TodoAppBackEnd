@@ -13,15 +13,15 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI}
-          jwk-set-uri: ${KEYCLOAK_ISSUER_URI}/protocol/openid-connect/certs
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}
+          jwk-set-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}/protocol/openid-connect/certs
 
 # Configuration de sécurité additionnelle
 auth:
   keycloak:
-    client-id: ${KEYCLOAK_CLIENT_ID:todoapp-api}
-    client-secret: ${KEYCLOAK_CLIENT_SECRET:}
-    realm: ${KEYCLOAK_REALM:master}
+    client-id: ${KEYCLOAK_CLIENT_ID:todo-backend-client}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET}
+    realm: ${KEYCLOAK_REALM:todo-backend}
 
 server:
   port: ${PORT:8080}
