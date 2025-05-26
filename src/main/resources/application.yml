@@ -13,7 +13,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "${KEYCLOAK_ISSUER_URI:}"
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
 
 server:
   port: ${PORT:8080}
