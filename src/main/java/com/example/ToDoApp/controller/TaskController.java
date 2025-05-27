@@ -141,7 +141,7 @@ public class TaskController {
 
     /** Seuls les ADMINS peuvent supprimer n'importe quelle tâche */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(summary = "Supprimer une tâche", description = "Supprime une tâche (admin uniquement)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Tâche supprimée avec succès"),
