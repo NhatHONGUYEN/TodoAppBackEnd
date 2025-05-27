@@ -32,14 +32,13 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}
-          jwk-set-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8080/realms/todo-backend
   web:
     cors:
       allowed-origins:
         - "http://localhost:3000"
-        - "http://localhost:8080"
-        - "https://your-frontend-domain.com"
+        - "http://localhost:8081"
+        - "https://localhost:4200"
       allowed-methods:
         - GET
         - POST
@@ -50,178 +49,48 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
       max-age: 3600
+  mvc:
+    static-path-pattern: /swagger-ui/**
+  resources:
+    static-locations: classpath:/static/,classpath:/static/swagger-ui/
 
-# Configuration Swagger/OpenAPI
 springdoc:
   api-docs:
     path: /v3/api-docs
     enabled: true
   swagger-ui:
     path: /swagger-ui.html
-    enabled: true
-    operationsSorter: method
-    tagsSorter: alpha
-    defaultModelsExpandDepth: 1
-    defaultModelExpandDepth: 1
-    displayRequestDuration: true
-    filter: true
-    showExtensions: true
-    showCommonExtensions: true
-    persistAuthorization: true
-    tryItOutEnabled: true
-    supportedSubmitMethods:
-      - get
-      - post
-      - put
-      - delete
-      - patch
+    oauth2-redirect-url: http://localhost:8081/swagger-ui/oauth2-redirect.html
     oauth:
-      clientId: ${KEYCLOAK_CLIENT_ID:todo-backend-client}
-      realm: ${KEYCLOAK_REALM:todo-backend}
-      appName: "ToDo App API"
-      scopeSeparator: " "
-      additionalQueryStringParams:
-        audience: ${KEYCLOAK_CLIENT_ID:todo-backend-client}
-  show-actuator: true
-  default-consumes-media-type: application/json
-  default-produces-media-type: application/json
+      client-id: todo-backend-client
+      client-secret: PhrhG3m0ZlMUl51DgVcDJB8PaJIwwERG
+      realm: todo-backend
+      app-name: ToDo API
+      scopes:
+        - openid
+        - profile
+        - email
 
-# Configuration Keycloak
 auth:
   keycloak:
     client-id: ${KEYCLOAK_CLIENT_ID:todo-backend-client}
-    client-secret: ${KEYCLOAK_CLIENT_SECRET}
+    client-secret: PhrhG3m0ZlMUl51DgVcDJB8PaJIwwERG
     realm: ${KEYCLOAK_REALM:todo-backend}
-    server-url: ${KEYCLOAK_SERVER_URL:https://todoappkeycloak-production.up.railway.app}
+    server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080}
 
-# Configuration serveur
 server:
-  port: ${PORT:8080}
+  port: 8081
+  servlet:
+    context-path: /
   error:
     include-message: always
     include-binding-errors: always
     include-stacktrace: on_param
     include-exception: false
 
-# Configuration des logs
 logging:
   level:
     com.example.ToDoApp: DEBUG
     org.springframework.security: DEBUG
     org.springframework.web.cors: DEBUG
     org.springdoc: DEBUG
-    springfox: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-
-# Configuration de monitoring (optionnel)
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-  endpoint:
-    health:
-      show-details: when_authorized
-
----
-# Profil Production
-spring:
-  config:
-    activate:
-      on-profile: prod
-  application:
-    name: todo-app
-  datasource:
-    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
-    username: ${PGUSER}
-    password: ${PGPASSWORD}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 300000
-      connection-timeout: 20000
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    open-in-view: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        jdbc:
-          time_zone: UTC
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}
-          jwk-set-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}/protocol/openid-connect/certs
-  web:
-    cors:
-      allowed-origins:
-        - "https://your-production-frontend.com"
-        - "https://your-staging-frontend.com"
-      allowed-methods:
-        - GET
-        - POST
-        - PUT
-        - DELETE
-        - PATCH
-        - OPTIONS
-      allowed-headers: "*"
-      allow-credentials: true
-      max-age: 3600
-
-# Configuration Swagger pour production
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-    enabled: ${SWAGGER_ENABLED:false} # Désactivé par défaut en production
-  swagger-ui:
-    enabled: ${SWAGGER_ENABLED:false} # Désactivé par défaut en production
-    path: /swagger-ui.html
-
-# Configuration Keycloak
-auth:
-  keycloak:
-    client-id: ${KEYCLOAK_CLIENT_ID:todo-backend-client}
-    client-secret: ${KEYCLOAK_CLIENT_SECRET}
-    realm: ${KEYCLOAK_REALM:todo-backend}
-    server-url: ${KEYCLOAK_SERVER_URL:https://todoappkeycloak-production.up.railway.app}
-
-# Configuration serveur production
-server:
-  port: ${PORT:8080}
-  error:
-    include-message: never
-    include-binding-errors: never
-    include-stacktrace: never
-    include-exception: false
-
-# Configuration des logs pour production
-logging:
-  level:
-    com.example.ToDoApp: INFO
-    org.springframework.security: WARN
-    org.springframework.web.cors: WARN
-    org.springdoc: WARN
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
-
-# Configuration de monitoring pour production
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,metrics,prometheus
-      base-path: /actuator
-  endpoint:
-    health:
-      show-details: never
-  metrics:
-    export:
-      prometheus:
-        enabled: true
