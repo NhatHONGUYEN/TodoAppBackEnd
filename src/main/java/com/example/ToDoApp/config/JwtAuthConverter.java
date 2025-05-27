@@ -1,4 +1,4 @@
-package com.example.ToDoApp.security;
+package com.example.ToDoApp.config;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;

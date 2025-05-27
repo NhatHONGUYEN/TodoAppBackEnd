@@ -1,6 +1,5 @@
 package com.example.ToDoApp.config;
 
-import com.example.ToDoApp.security.JwtAuthConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
