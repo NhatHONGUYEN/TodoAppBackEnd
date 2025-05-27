@@ -39,7 +39,7 @@ springdoc:
     path: /swagger-ui.html
     oauth:
       client-id: todo-backend-client
-      client-secret: ${KEYCLOAK_CLIENT_SECRET:}
+      client-secret: 5uUeP1tBRYLxGH1BSgsSdJ0WfUGNBWgN
       realm: todo-backend
       app-name: ToDo API
       scopes:
@@ -51,7 +51,7 @@ springdoc:
 auth:
   keycloak:
     client-id: ${KEYCLOAK_CLIENT_ID:todo-backend-client}
-    client-secret: ${KEYCLOAK_CLIENT_SECRET}
+    client-secret: 5uUeP1tBRYLxGH1BSgsSdJ0WfUGNBWgN
     realm: ${KEYCLOAK_REALM:todo-backend}
     server-url: ${KEYCLOAK_SERVER_URL:https://todoappkeycloak-production.up.railway.app}
 
