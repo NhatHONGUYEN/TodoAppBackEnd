@@ -5,6 +5,12 @@ import com.example.ToDoApp.dto.UpdateTaskRequest;
 import com.example.ToDoApp.entity.Task;
 import com.example.ToDoApp.exception.TaskNotFoundException;
 import com.example.ToDoApp.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
+@Tag(name = "Tasks", description = "API de gestion des tâches")
 public class TaskController {
 
     private final TaskService taskService;
@@ -27,8 +34,13 @@ public class TaskController {
     /** Accessible à tous les utilisateurs authentifiés avec le rôle USER ou ADMIN */
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @Operation(summary = "Récupérer toutes les tâches", description = "Récupère les tâches de l'utilisateur connecté avec filtrage optionnel par statut")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Tâches récupérées avec succès"),
+        @ApiResponse(responseCode = "401", description = "Non autorisé", content = @Content)
+    })
     public ResponseEntity<List<Task>> list(
-            @RequestParam(defaultValue = "all") String status,
+            @Parameter(description = "Filtre par statut: all, pending, done") @RequestParam(defaultValue = "all") String status,
             Principal principal
     ) {
         String userId = principal.getName();
@@ -42,8 +54,14 @@ public class TaskController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @Operation(summary = "Récupérer une tâche par ID", description = "Récupère une tâche spécifique par son ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Tâche trouvée"),
+        @ApiResponse(responseCode = "404", description = "Tâche non trouvée"),
+        @ApiResponse(responseCode = "401", description = "Non autorisé", content = @Content)
+    })
     public ResponseEntity<Task> getById(
-            @PathVariable Long id,
+            @Parameter(description = "ID de la tâche") @PathVariable Long id,
             Principal principal
     ) {
         List<Task> tasks = taskService.list(principal.getName(), null, Sort.by("id"));
@@ -56,6 +74,12 @@ public class TaskController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @Operation(summary = "Créer une nouvelle tâche", description = "Crée une nouvelle tâche pour l'utilisateur connecté")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Tâche créée avec succès"),
+        @ApiResponse(responseCode = "400", description = "Données invalides"),
+        @ApiResponse(responseCode = "401", description = "Non autorisé", content = @Content)
+    })
     public ResponseEntity<Task> create(
             @Valid @RequestBody CreateTaskRequest request,
             Principal principal
@@ -72,8 +96,15 @@ public class TaskController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @Operation(summary = "Mettre à jour une tâche", description = "Met à jour une tâche existante")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Tâche mise à jour avec succès"),
+        @ApiResponse(responseCode = "404", description = "Tâche non trouvée"),
+        @ApiResponse(responseCode = "400", description = "Données invalides"),
+        @ApiResponse(responseCode = "401", description = "Non autorisé", content = @Content)
+    })
     public ResponseEntity<Task> update(
-            @PathVariable Long id,
+            @Parameter(description = "ID de la tâche") @PathVariable Long id,
             @Valid @RequestBody UpdateTaskRequest request,
             Principal principal
     ) {
@@ -94,19 +125,32 @@ public class TaskController {
 
     @PutMapping("/{id}/done")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @Operation(summary = "Marquer une tâche comme terminée", description = "Change le statut d'une tâche à 'terminée'")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Tâche marquée comme terminée"),
+        @ApiResponse(responseCode = "404", description = "Tâche non trouvée"),
+        @ApiResponse(responseCode = "401", description = "Non autorisé", content = @Content)
+    })
     public ResponseEntity<Task> markDone(
-            @PathVariable Long id,
+            @Parameter(description = "ID de la tâche") @PathVariable Long id,
             Principal principal
     ) {
         Task updated = taskService.markDone(id, principal.getName());
         return ResponseEntity.ok(updated);
     }
 
-    /** Seuls les ADMINS peuvent supprimer n’importe quelle tâche */
+    /** Seuls les ADMINS peuvent supprimer n'importe quelle tâche */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Supprimer une tâche", description = "Supprime une tâche (admin uniquement)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Tâche supprimée avec succès"),
+        @ApiResponse(responseCode = "404", description = "Tâche non trouvée"),
+        @ApiResponse(responseCode = "401", description = "Non autorisé", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Accès refusé", content = @Content)
+    })
     public ResponseEntity<Void> delete(
-            @PathVariable Long id,
+            @Parameter(description = "ID de la tâche") @PathVariable Long id,
             Principal principal
     ) {
         taskService.delete(id, principal.getName());

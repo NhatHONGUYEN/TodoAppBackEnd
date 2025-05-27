@@ -25,15 +25,16 @@ public class SecurityConfig {
         this.corsConfigurationSource = corsConfigurationSource;
     }
 
+    @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Utilise la configuration CORS du bean CorsConfig
+            // Configuration CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
-            // Désactive CSRF car nous utilisons des tokens JWT
+            // Désactiver CSRF pour les API REST
             .csrf(AbstractHttpConfigurer::disable)
-            // Configuration stateless pour les API REST
-            .sessionManagement(session -> 
+            // Configuration stateless
+            .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // Configuration OAuth2/JWT
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -41,15 +42,38 @@ public class SecurityConfig {
             )
             // Configuration des autorisations
             .authorizeHttpRequests(authz -> authz
-                // TRÈS IMPORTANT : autoriser OPTIONS pour CORS preflight
+                // OPTIONS pour CORS preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Ajout des règles pour /api/tasks (correspond à TaskController)
+                
+                // URLs Swagger/OpenAPI - IMPORTANT: ordre des patterns
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/swagger-resources/**",
+                    "/webjars/**"
+                ).permitAll()
+                
+                // Console H2 pour développement
+                .requestMatchers("/h2-console/**").permitAll()
+                
+                // Endpoints publics (si vous en avez)
+                .requestMatchers("/api/public/**").permitAll()
+                
+                // API Tasks - authentification requise
                 .requestMatchers("/api/tasks/**").authenticated()
-                // Conservons les règles existantes pour d'autres APIs
+                
+                // Autres APIs avec rôles
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                
                 // Tout le reste nécessite authentification
                 .anyRequest().authenticated()
+            )
+            // Headers pour H2 Console
+            .headers(headers -> headers
+                .frameOptions().disable()
+                .httpStrictTransportSecurity().disable()
             );
 
         return http.build();
