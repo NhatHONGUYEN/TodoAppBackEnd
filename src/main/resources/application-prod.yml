@@ -32,10 +32,22 @@ spring:
       allow-credentials: true
       max-age: 3600
 
-# Désactive (ou sécurise) Swagger UI en prod
+# Configuration Swagger UI pour production
 springdoc:
   swagger-ui:
-    enabled: false
+    enabled: true
+    oauth:
+      client-id: todo-backend-client
+      client-secret: 5uUeP1tBRYLxGH1BSgsSdJ0WfUGNBWgN
+      realm: todo-backend
+      app-name: ToDo API
+      scopes:
+        - openid
+        - profile
+        - email
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
 
 # Actuator health (optionnel)
 management:

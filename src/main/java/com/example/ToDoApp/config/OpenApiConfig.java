@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${auth.keycloak.server-url:http://localhost:8080}")
+    @Value("${auth.keycloak.server-url:https://todoappkeycloak-production.up.railway.app}")
     private String keycloakServerUrl;
     
     @Value("${auth.keycloak.realm:todo-backend}")
