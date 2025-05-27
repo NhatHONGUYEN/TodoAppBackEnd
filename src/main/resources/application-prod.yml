@@ -1,61 +1,52 @@
 spring:
   application:
     name: todo-app
+
+  config:
+    activate:
+      on-profile: prod
+
   datasource:
     url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
     username: ${PGUSER}
     password: ${PGPASSWORD}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: false
+
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}
+
   web:
     cors:
       allowed-origins:
         - "https://todoappnhat.netlify.app"
-      allowed-methods:
-        - GET
-        - POST
-        - PUT
-        - DELETE
-        - PATCH
-        - OPTIONS
+      allowed-methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
       allowed-headers: "*"
       allow-credentials: true
       max-age: 3600
 
-# Configuration Swagger pour production
+# Désactive (ou sécurise) Swagger UI en prod
 springdoc:
-  api-docs:
-    path: /v3/api-docs
-    enabled: true
   swagger-ui:
-    path: /swagger-ui.html
-    oauth:
-      client-id: todo-backend-client
-      client-secret: 5uUeP1tBRYLxGH1BSgsSdJ0WfUGNBWgN
-      realm: todo-backend
-      app-name: ToDo API
-      scopes:
-        - openid
-        - profile
-        - email
+    enabled: false
 
-# Configuration Keycloak
-auth:
-  keycloak:
-    client-id: ${KEYCLOAK_CLIENT_ID:todo-backend-client}
-    client-secret: 5uUeP1tBRYLxGH1BSgsSdJ0WfUGNBWgN
-    realm: ${KEYCLOAK_REALM:todo-backend}
-    server-url: ${KEYCLOAK_SERVER_URL:https://todoappkeycloak-production.up.railway.app}
+# Actuator health (optionnel)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
 
-# Configuration serveur
 server:
   port: ${PORT:8080}
   error:
@@ -64,9 +55,9 @@ server:
     include-stacktrace: never
     include-exception: false
 
-# Configuration des logs
 logging:
   level:
+    root: INFO
     com.example.ToDoApp: INFO
     org.springframework.security: INFO
     org.springframework.web: INFO

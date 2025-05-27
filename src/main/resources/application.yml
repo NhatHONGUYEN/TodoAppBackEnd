@@ -1,18 +1,22 @@
 spring:
+  application:
+    name: todo-app
+
   profiles:
     active: ${ACTIVE_PROFILE:dev}
 ---
+# Bloc DEV (in-mem H2)
 spring:
   config:
     activate:
       on-profile: dev
-  application:
-    name: todo-app
+
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
     password:
     driver-class-name: org.h2.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -22,38 +26,32 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
+
   h2:
     console:
       enabled: true
       path: /h2-console
       settings:
         web-allow-others: true
+
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/todo-backend
+
   web:
     cors:
       allowed-origins:
         - "http://localhost:3000"
         - "http://localhost:8081"
         - "https://localhost:4200"
-      allowed-methods:
-        - GET
-        - POST
-        - PUT
-        - DELETE
-        - PATCH
-        - OPTIONS
+      allowed-methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
       allowed-headers: "*"
       allow-credentials: true
       max-age: 3600
-  mvc:
-    static-path-pattern: /swagger-ui/**
-  resources:
-    static-locations: classpath:/static/,classpath:/static/swagger-ui/
 
+# Swagger UI en DEV
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -63,18 +61,16 @@ springdoc:
     oauth2-redirect-url: http://localhost:8081/swagger-ui/oauth2-redirect.html
     oauth:
       client-id: todo-backend-client
-      client-secret: PhrhG3m0ZlMUl51DgVcDJB8PaJIwwERG
+      client-secret: ${KEYCLOAK_CLIENT_SECRET:}
       realm: todo-backend
       app-name: ToDo API
-      scopes:
-        - openid
-        - profile
-        - email
+      scopes: ["openid", "profile", "email"]
 
+# Keycloak local
 auth:
   keycloak:
     client-id: ${KEYCLOAK_CLIENT_ID:todo-backend-client}
-    client-secret: PhrhG3m0ZlMUl51DgVcDJB8PaJIwwERG
+    client-secret: ${KEYCLOAK_CLIENT_SECRET:}
     realm: ${KEYCLOAK_REALM:todo-backend}
     server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080}
 
