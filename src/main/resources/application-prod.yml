@@ -15,7 +15,6 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}
-          jwk-set-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}/protocol/openid-connect/certs
   web:
     cors:
       allowed-origins:
@@ -47,9 +46,6 @@ springdoc:
         - openid
         - profile
         - email
-  oAuthFlow:
-    authorizationUrl: https://todoappkeycloak-production.up.railway.app/realms/todo-backend/protocol/openid-connect/auth
-    tokenUrl: https://todoappkeycloak-production.up.railway.app/realms/todo-backend/protocol/openid-connect/token
 
 # Configuration Keycloak
 auth:
