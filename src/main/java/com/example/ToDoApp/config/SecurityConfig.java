@@ -4,6 +4,7 @@ import com.example.ToDoApp.security.JwtAuthConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,6 +14,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthConverter jwtAuthConverter;
@@ -27,24 +29,27 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1) active CORS via ton bean
+            // Utilise la configuration CORS du bean CorsConfig
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
-            // 2) désactive CSRF si tu fais purement une API REST
+            // Désactive CSRF car nous utilisons des tokens JWT
             .csrf(AbstractHttpConfigurer::disable)
-            // 3) configure la gestion de session (STATELESS pour les API REST)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // 4) configure l'authentification OAuth2 Resource Server / JWT
+            // Configuration stateless pour les API REST
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Configuration OAuth2/JWT
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter))
             )
-            // 5) règles d'autorisation
+            // Configuration des autorisations
             .authorizeHttpRequests(authz -> authz
-                // Autoriser les requêtes OPTIONS sans authentification (important pour CORS)
+                // TRÈS IMPORTANT : autoriser OPTIONS pour CORS preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Routes protégées par rôles
+                // Ajout des règles pour /api/tasks (correspond à TaskController)
+                .requestMatchers("/api/tasks/**").authenticated()
+                // Conservons les règles existantes pour d'autres APIs
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-                // Tout le reste nécessite une authentification
+                // Tout le reste nécessite authentification
                 .anyRequest().authenticated()
             );
 
