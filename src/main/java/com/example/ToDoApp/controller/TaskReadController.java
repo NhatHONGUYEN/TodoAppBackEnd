@@ -20,7 +20,7 @@ import static com.example.ToDoApp.controller.TaskControllerUtils.findTaskOrThrow
 import static com.example.ToDoApp.controller.TaskControllerUtils.getCompletedFilterValue;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api/tasks/read")
 @Tag(name = "Lecture de tâches", description = "API pour la lecture des tâches")
 public class TaskReadController {
 
