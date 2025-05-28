@@ -25,7 +25,7 @@ spring:
   web:
     cors:
       allowed-origins:
-        - "https://todoappnhat.netlify.app"
+        - ${FRONTEND_URL}
       allowed-methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
       allowed-headers: "*"
       allow-credentials: true
