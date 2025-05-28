@@ -38,7 +38,7 @@ springdoc:
     enabled: true
     oauth:
       client-id: todo-backend-client
-      client-secret: 5uUeP1tBRYLxGH1BSgsSdJ0WfUGNBWgN
+      client-secret: 48X6oHEI8EFSaCVYVBYy3FtAWnYswMnE
       realm: todo-backend
       app-name: ToDo API
       scopes:
