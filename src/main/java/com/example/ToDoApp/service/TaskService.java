@@ -4,6 +4,8 @@ import com.example.ToDoApp.entity.Task;
 import com.example.ToDoApp.exception.AccessDeniedException;
 import com.example.ToDoApp.exception.TaskNotFoundException;
 import com.example.ToDoApp.repository.TaskRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +45,22 @@ public class TaskService {
             return repo.findByUserId(userId, sort);
         } else {
             return repo.findByUserIdAndCompleted(userId, completed, sort);
+        }
+    }
+    
+    /**
+     * Liste les tâches d'un utilisateur avec pagination.
+     *
+     * @param userId    ID du user (sub du token)
+     * @param completed filtre : true/false ou null pour "toutes"
+     * @param pageable  objet de pagination avec tri et numéro de page
+     * @return une page des tâches correspondant aux critères
+     */
+    public Page<Task> listPaginated(String userId, Boolean completed, Pageable pageable) {
+        if (completed == null) {
+            return repo.findByUserId(userId, pageable);
+        } else {
+            return repo.findByUserIdAndCompleted(userId, completed, pageable);
         }
     }
 
