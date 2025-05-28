@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 @EnableWebSecurity
@@ -18,11 +21,19 @@ public class SecurityConfig {
 
     private final JwtAuthConverter jwtAuthConverter;
     private final CorsConfigurationSource corsConfigurationSource;
+    
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
 
     public SecurityConfig(JwtAuthConverter jwtAuthConverter,
                           CorsConfigurationSource corsConfigurationSource) {
         this.jwtAuthConverter = jwtAuthConverter;
         this.corsConfigurationSource = corsConfigurationSource;
+    }
+    
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return JwtDecoders.fromIssuerLocation(issuerUri);
     }
 
     @SuppressWarnings("removal")
