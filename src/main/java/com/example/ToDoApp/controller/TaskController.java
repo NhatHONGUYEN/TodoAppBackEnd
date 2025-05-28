@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;  // ← import nécessaire
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -84,12 +84,8 @@ public class TaskController {
             @Valid @RequestBody CreateTaskRequest request,
             Principal principal
     ) {
-        Task task = new Task();
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setDueDate(request.getDueDate());
-        task.setCompleted(request.getCompleted());
-        task.setUserId(principal.getName());
+        // Utilisation de la méthode de conversion du record
+        Task task = request.toEntity(principal.getName());
         Task saved = taskService.create(task);
         return ResponseEntity.ok(saved);
     }
@@ -114,10 +110,8 @@ public class TaskController {
                 .findFirst()
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
-        existingTask.setTitle(request.getTitle());
-        existingTask.setDescription(request.getDescription());
-        existingTask.setDueDate(request.getDueDate());
-        existingTask.setCompleted(request.getCompleted());
+        // Utilisation de la méthode applyTo du record
+        request.applyTo(existingTask);
 
         Task updated = taskService.update(id, principal.getName(), existingTask);
         return ResponseEntity.ok(updated);
