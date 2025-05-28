@@ -6,10 +6,10 @@ package com.example.ToDoApp.exception;
 public class AccessDeniedException extends BusinessException {
     
     public AccessDeniedException() {
-        super("Vous n'êtes pas autorisé à accéder à cette ressource", "ACCESS_DENIED");
+        super("Vous n'êtes pas autorisé à accéder à cette ressource", ErrorCode.ACCESS_DENIED);
     }
     
     public AccessDeniedException(String message) {
-        super(message, "ACCESS_DENIED");
+        super(message, ErrorCode.ACCESS_DENIED);
     }
 } 

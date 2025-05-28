@@ -23,18 +23,18 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     
     /**
+     * Extrait le chemin de la requête en supprimant le préfixe "uri="
+     */
+    private String extractPath(WebRequest request) {
+        return request.getDescription(false).replace("uri=", "");
+    }
+    
+    /**
      * Gère les exceptions métier personnalisées
      */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiError> handleBusinessException(BusinessException ex, WebRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        
-        // Ajuster le statut HTTP selon le type d'exception
-        if (ex instanceof TaskNotFoundException) {
-            status = HttpStatus.NOT_FOUND;
-        } else if (ex instanceof AccessDeniedException) {
-            status = HttpStatus.FORBIDDEN;
-        }
+        HttpStatus status = getStatusForException(ex);
         
         // Créer la réponse d'erreur standardisée
         ApiError error = new ApiError(
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
             status.getReasonPhrase(),
             ex.getCode(),
             ex.getMessage(),
-            request.getDescription(false).replace("uri=", "")
+            extractPath(request)
         );
         
         // Logger l'erreur
@@ -52,29 +52,47 @@ public class GlobalExceptionHandler {
     }
     
     /**
+     * Détermine le statut HTTP approprié pour l'exception
+     */
+    private HttpStatus getStatusForException(BusinessException ex) {
+        return switch (ex.getErrorCode()) {
+            case TASK_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case ACCESS_DENIED -> HttpStatus.FORBIDDEN;
+            default -> HttpStatus.BAD_REQUEST;
+        };
+    }
+    
+    /**
      * Gère les exceptions de validation
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
-        Map<String, String> errors = new HashMap<>();
+        Map<String, String> validationErrors = collectValidationErrors(ex);
         
+        ApiError error = new ApiError(
+            HttpStatus.BAD_REQUEST.value(),
+            HttpStatus.BAD_REQUEST.getReasonPhrase(),
+            ErrorCode.VALIDATION_ERROR.name(),
+            "Erreur de validation des données d'entrée",
+            extractPath(request)
+        );
+        
+        log.warn("Erreur de validation: {}", validationErrors);
+        
+        return new ResponseEntity<>(Map.of("error", error, "validationErrors", validationErrors), HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Collecte les erreurs de validation dans une Map
+     */
+    private Map<String, String> collectValidationErrors(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        
-        ApiError error = new ApiError(
-            HttpStatus.BAD_REQUEST.value(),
-            HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            "VALIDATION_ERROR",
-            "Erreur de validation des données d'entrée",
-            request.getDescription(false).replace("uri=", "")
-        );
-        
-        log.warn("Erreur de validation: {}", errors);
-        
-        return new ResponseEntity<>(Map.of("error", error, "validationErrors", errors), HttpStatus.BAD_REQUEST);
+        return errors;
     }
     
     /**
@@ -87,9 +105,9 @@ public class GlobalExceptionHandler {
         ApiError error = new ApiError(
             status.value(),
             status.getReasonPhrase(),
-            "SYSTEM_ERROR",
+            ErrorCode.SYSTEM_ERROR.name(),
             "Une erreur interne est survenue",
-            request.getDescription(false).replace("uri=", "")
+            extractPath(request)
         );
         
         // Logger l'erreur complète avec la stack trace

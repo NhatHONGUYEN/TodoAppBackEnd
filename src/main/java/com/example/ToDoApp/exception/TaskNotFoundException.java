@@ -6,10 +6,10 @@ package com.example.ToDoApp.exception;
 public class TaskNotFoundException extends BusinessException {
     
     public TaskNotFoundException(Long id) {
-        super("La tâche avec l'ID " + id + " n'a pas été trouvée", "TASK_NOT_FOUND");
+        super("La tâche avec l'ID " + id + " n'a pas été trouvée", ErrorCode.TASK_NOT_FOUND);
     }
     
     public TaskNotFoundException(String message) {
-        super(message, "TASK_NOT_FOUND");
+        super(message, ErrorCode.TASK_NOT_FOUND);
     }
 } 

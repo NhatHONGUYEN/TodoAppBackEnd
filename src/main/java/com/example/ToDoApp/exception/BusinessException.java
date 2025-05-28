@@ -5,27 +5,36 @@ package com.example.ToDoApp.exception;
  */
 public class BusinessException extends RuntimeException {
     
-    private final String code;
+    private final ErrorCode code;
     
     public BusinessException(String message) {
-        this(message, "BUSINESS_ERROR");
+        this(message, ErrorCode.BUSINESS_ERROR);
     }
     
-    public BusinessException(String message, String code) {
+    public BusinessException(String message, ErrorCode code) {
         super(message);
         this.code = code;
     }
     
-    public BusinessException(String message, Throwable cause) {
-        this(message, "BUSINESS_ERROR", cause);
+    public BusinessException(ErrorCode code) {
+        super(code.getDefaultMessage());
+        this.code = code;
     }
     
-    public BusinessException(String message, String code, Throwable cause) {
+    public BusinessException(String message, Throwable cause) {
+        this(message, ErrorCode.BUSINESS_ERROR, cause);
+    }
+    
+    public BusinessException(String message, ErrorCode code, Throwable cause) {
         super(message, cause);
         this.code = code;
     }
     
-    public String getCode() {
+    public ErrorCode getErrorCode() {
         return code;
+    }
+    
+    public String getCode() {
+        return code.name();
     }
 } 
