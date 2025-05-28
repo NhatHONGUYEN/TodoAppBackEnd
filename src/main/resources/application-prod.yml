@@ -4,7 +4,7 @@ spring:
 
   config:
     activate:
-      on-profile: prod
+      on-profile: ${SPRING_PROFILES_ACTIVE}
 
   datasource:
     url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
@@ -21,8 +21,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:https://todoappkeycloak-production.up.railway.app/realms/todo-backend}
-
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
   web:
     cors:
       allowed-origins:
@@ -37,9 +36,9 @@ springdoc:
   swagger-ui:
     enabled: true
     oauth:
-      client-id: todo-backend-client
-      client-secret: 48X6oHEI8EFSaCVYVBYy3FtAWnYswMnE
-      realm: todo-backend
+      client-id: ${KEYCLOAK_CLIENT_ID}
+      client-secret: ${KEYCLOAK_CLIENT_SECRET}
+      realm: ${KEYCLOAK_REALM}
       app-name: ToDo API
       scopes:
         - openid
@@ -60,7 +59,7 @@ management:
       show-details: never
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT}
   error:
     include-message: always
     include-binding-errors: always

@@ -71,19 +71,19 @@ springdoc:
     # Le redirect URL de Swagger doit pointer sur ton backend (port 80)
     oauth2-redirect-url: http://localhost/swagger-ui/oauth2-redirect.html
     oauth:
-      client-id: todo-backend-local
-      client-secret: hi8nLHb1HBFUuE6HL9Xl2ksH5GlEYeKC
-      realm: todo-backend-local
+      client-id: ${KEYCLOAK_CLIENT_ID}
+      client-secret: ${KEYCLOAK_CLIENT_SECRET}
+      realm: ${KEYCLOAK_REALM}
       app-name: ToDo API
       scopes: ["openid", "profile", "email"]
 
 # --- Configuration de Keycloak pour Spring (local sur port 81) ---
 auth:
   keycloak:
-    client-id: todo-backend-local
-    client-secret: hi8nLHb1HBFUuE6HL9Xl2ksH5GlEYeKC
-    realm: todo-backend-local
-    server-url: http://localhost:81
+    client-id: ${KEYCLOAK_CLIENT_ID}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET}
+    realm: ${KEYCLOAK_REALM}
+    server-url: ${KEYCLOAK_SERVER_URL}
 
 # --- Serveur Spring Boot écoute sur le port 80 ---
 server:
