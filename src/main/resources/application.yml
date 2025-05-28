@@ -1,16 +1,24 @@
+# =============================================================================
+# Configuration commune à tous les profils
+# =============================================================================
 spring:
   application:
     name: todo-app
 
   profiles:
+    # profil actif par défaut = dev, modifiable via la variable ACTIVE_PROFILE
     active: ${ACTIVE_PROFILE:dev}
+
 ---
-# Bloc DEV (in-mem H2)
+# =============================================================================
+# Profil DEV : base H2 + Keycloak local + CORS + Swagger UI
+# =============================================================================
 spring:
   config:
     activate:
       on-profile: dev
 
+  # --- Base de données en mémoire H2 ---
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
@@ -34,56 +42,62 @@ spring:
       settings:
         web-allow-others: true
 
+  # --- Resource Server JWT via Keycloak local (port 81) ---
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/todo-backend
+          issuer-uri: http://localhost:81/realms/todo-backend-local
 
+  # --- CORS pour ton front Angular (4200) et facultativement React (3000) ---
   web:
     cors:
       allowed-origins:
+        - "http://localhost:4200"
         - "http://localhost:3000"
-        - "http://localhost:8081"
-        - "https://localhost:4200"
       allowed-methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
       allowed-headers: "*"
       allow-credentials: true
       max-age: 3600
 
-# Swagger UI en DEV
+# --- Swagger UI + OAuth2 pour tester tes endpoints en dev ---
 springdoc:
   api-docs:
     path: /v3/api-docs
     enabled: true
+
   swagger-ui:
     path: /swagger-ui.html
-    oauth2-redirect-url: http://localhost:8081/swagger-ui/oauth2-redirect.html
+    # Le redirect URL de Swagger doit pointer sur ton backend (port 80)
+    oauth2-redirect-url: http://localhost/swagger-ui/oauth2-redirect.html
     oauth:
-      client-id: todo-backend-client
-      client-secret: ${KEYCLOAK_CLIENT_SECRET:}
-      realm: todo-backend
+      client-id: todo-backend-local
+      client-secret: hi8nLHb1HBFUuE6HL9Xl2ksH5GlEYeKC
+      realm: todo-backend-local
       app-name: ToDo API
       scopes: ["openid", "profile", "email"]
 
-# Keycloak local
+# --- Configuration de Keycloak pour Spring (local sur port 81) ---
 auth:
   keycloak:
-    client-id: ${KEYCLOAK_CLIENT_ID:todo-backend-client}
-    client-secret: ${KEYCLOAK_CLIENT_SECRET:}
-    realm: ${KEYCLOAK_REALM:todo-backend}
-    server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080}
+    client-id: todo-backend-local
+    client-secret: hi8nLHb1HBFUuE6HL9Xl2ksH5GlEYeKC
+    realm: todo-backend-local
+    server-url: http://localhost:81
 
+# --- Serveur Spring Boot écoute sur le port 80 ---
 server:
-  port: 8081
+  port: 80
   servlet:
     context-path: /
+
   error:
     include-message: always
     include-binding-errors: always
     include-stacktrace: on_param
     include-exception: false
 
+# --- Logs en DEBUG pour Spring Security, CORS, Springdoc, ta couche métier ---
 logging:
   level:
     com.example.ToDoApp: DEBUG
