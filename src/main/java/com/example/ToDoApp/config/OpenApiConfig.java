@@ -2,7 +2,6 @@ package com.example.ToDoApp.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.OAuthFlows;
@@ -25,17 +24,15 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "OAuth2";
         
-        String authorizationUrl = keycloakServerUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/auth";
-        String tokenUrl = keycloakServerUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token";
+        // URLs génériques pour masquer les détails d'infrastructure
+        String authorizationUrl = "/auth/realms/myapp/protocol/openid-connect/auth";
+        String tokenUrl = "/auth/realms/myapp/protocol/openid-connect/token";
         
         return new OpenAPI()
                 .info(new Info()
                         .title("ToDo API")
                         .description("API pour l'application ToDo")
-                        .version("1.0.0")
-                        .contact(new Contact()
-                                .name("Développeur")
-                                .email("contact@example.com")))
+                        .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
