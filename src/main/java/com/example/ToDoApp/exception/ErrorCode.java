@@ -1,10 +1,9 @@
 package com.example.ToDoApp.exception;
 
 /**
- * Énumération des codes d'erreur de l'application
+ * Énumération simplifiée des codes d'erreur essentiels
  */
 public enum ErrorCode {
-    BUSINESS_ERROR("Erreur métier"),
     TASK_NOT_FOUND("Tâche non trouvée"),
     ACCESS_DENIED("Accès refusé"),
     VALIDATION_ERROR("Erreur de validation"),

@@ -14,8 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Intercepteur global des exceptions pour l'API
- * Convertit les exceptions en réponses HTTP standardisées
+ * Intercepteur global simplifié des exceptions pour l'API
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -36,17 +35,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleBusinessException(BusinessException ex, WebRequest request) {
         HttpStatus status = getStatusForException(ex);
         
-        // Créer la réponse d'erreur standardisée
         ApiError error = new ApiError(
-            status.value(),
-            status.getReasonPhrase(),
-            ex.getCode(),
+            status.value(), 
             ex.getMessage(),
             extractPath(request)
         );
         
-        // Logger l'erreur
-        log.error("Erreur business: {}, code: {}", ex.getMessage(), ex.getCode());
+        log.error("Erreur business: {}, code: {}", ex.getMessage(), ex.getErrorCode());
         
         return new ResponseEntity<>(error, status);
     }
@@ -67,32 +62,22 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
-        Map<String, String> validationErrors = collectValidationErrors(ex);
+        Map<String, String> validationErrors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            validationErrors.put(fieldName, errorMessage);
+        });
         
         ApiError error = new ApiError(
             HttpStatus.BAD_REQUEST.value(),
-            HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            ErrorCode.VALIDATION_ERROR.name(),
-            "Erreur de validation des données d'entrée",
+            "Erreur de validation des données",
             extractPath(request)
         );
         
         log.warn("Erreur de validation: {}", validationErrors);
         
         return new ResponseEntity<>(Map.of("error", error, "validationErrors", validationErrors), HttpStatus.BAD_REQUEST);
-    }
-    
-    /**
-     * Collecte les erreurs de validation dans une Map
-     */
-    private Map<String, String> collectValidationErrors(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
     }
     
     /**
@@ -104,13 +89,10 @@ public class GlobalExceptionHandler {
         
         ApiError error = new ApiError(
             status.value(),
-            status.getReasonPhrase(),
-            ErrorCode.SYSTEM_ERROR.name(),
             "Une erreur interne est survenue",
             extractPath(request)
         );
         
-        // Logger l'erreur complète avec la stack trace
         log.error("Erreur non gérée: ", ex);
         
         return new ResponseEntity<>(error, status);
