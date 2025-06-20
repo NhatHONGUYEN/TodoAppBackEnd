@@ -49,8 +49,24 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
             }
         }
 
-        // Fusionner et prefixer
-        return Stream.concat(realmRoles.stream(), clientRoles.stream())
+        // Fusionner tous les rôles
+        Collection<String> allRoles = Stream.concat(realmRoles.stream(), clientRoles.stream())
+            .collect(Collectors.toList());
+
+        // Si l'utilisateur n'a que les rôles par défaut de Keycloak, lui donner USER
+        boolean hasOnlyDefaultRoles = allRoles.stream()
+            .allMatch(role -> role.equals("offline_access") || 
+                             role.equals("uma_authorization") || 
+                             role.startsWith("default-roles-"));
+
+        if (hasOnlyDefaultRoles || (!allRoles.contains("USER") && !allRoles.contains("ADMIN"))) {
+            // Ajouter USER par défaut pour les utilisateurs GitHub
+            allRoles = Stream.concat(allRoles.stream(), Stream.of("USER"))
+                .collect(Collectors.toList());
+        }
+
+        // Prefixer avec ROLE_
+        return allRoles.stream()
             .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
             .collect(Collectors.toList());
     }
