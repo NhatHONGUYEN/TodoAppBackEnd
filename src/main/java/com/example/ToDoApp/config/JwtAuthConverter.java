@@ -43,7 +43,7 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
         Collection<String> clientRoles = Collections.emptyList();
         if (resourceAccess != null) {
             Map<String,Object> client = 
-                (Map<String,Object>) resourceAccess.get("todo-backend-client");
+                (Map<String,Object>) resourceAccess.get("todo-backend-local");
             if (client != null) {
                 clientRoles = (Collection<String>) client.get("roles");
             }
